@@ -15,7 +15,8 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ModelViewHol
 
     private Context context;
     private List<Model> modelList;
-
+    private int expandedPosition = -1;
+    private int previousExpandedPosition = -1;
 
     public ModelAdapter(MainActivity mainActivity, List<Model> modelList) {
         context = mainActivity;
@@ -30,32 +31,37 @@ public class ModelAdapter extends RecyclerView.Adapter<ModelAdapter.ModelViewHol
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ModelViewHolder modelViewHolder, final int i) {
-        final Model model = modelList.get(i);
-
-        modelViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (model.isCollapsed()) {
-                    model.setExpanded(false);
-                } else {
-                    model.setExpanded(true);
-                }
-                notifyItemChanged(i);
-            }
-        });
-
-
-        if (model.isExpanded()) {
+    public void onBindViewHolder(@NonNull final ModelViewHolder modelViewHolder, final int position) {
+        final Model model = modelList.get(position);
+        final boolean isExpanded;
+        if (position == expandedPosition) {
+            isExpanded = true;
+        } else {
+            isExpanded = false;
+        }
+        if (isExpanded) {
             modelViewHolder.subItem.setVisibility(View.VISIBLE);
             modelViewHolder.title.setText(model.getTitle());
-            modelViewHolder.genre.setText("Genre: " + model.getGenre());
-            modelViewHolder.year.setText("Year: " + model.getYear());
-            model.setCollapsed(true);
+            modelViewHolder.genre.setText("Genre " + model.getGenre());
+            modelViewHolder.year.setText("Year " + model.getYear());
         } else {
             modelViewHolder.subItem.setVisibility(View.GONE);
             modelViewHolder.title.setText(model.getTitle());
         }
+
+
+        modelViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isExpanded) {
+                    expandedPosition = -1;
+                } else {
+                    expandedPosition = position;
+                    previousExpandedPosition = position;
+                }
+                notifyItemChanged(position);
+            }
+        });
 
     }
 
